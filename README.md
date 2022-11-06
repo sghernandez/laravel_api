@@ -1,7 +1,7 @@
 
 # Laravel 9 - API & Front - JQuery
 
-API con laravel 9 utilizand Sanctum para proteger las rutas.
+API con laravel 9 utilizando Sanctum para proteger las rutas.
 
 
 
