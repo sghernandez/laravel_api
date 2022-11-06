@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <style>.hidden { display: none !important; }</style>
+    <title>Front API</title>
+</head>
+<body>
+
+ <div class="container" align="center">
+
+    <div style="margin: 20px 10px">
+      <button id="login" class="btn btn-warning" onclick="login()">Click to Authenticate</button>
+      <button id="logout" class="btn btn-danger hidden" onclick="logout()">Click to Logout</button>
+    </div>
+
+    <div id="is-logged"></div><br>
+
+    <div id="empleados_div" class="hidden">
+      <button class="btn btn-primary" onclick="empleados()">Get employees</button>
+
+      <table class="table">
+        <thead>
+          <tr>
+              <th>Name</th>
+              <th>Lastname</th>
+              <th>Gender</th>
+              <th>ID</th>
+          </tr>
+        </thead>
+        <tbody id="empleados"></tbody>
+    </table>  
+    </div>    
+ </div>
+
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>    
+ <script>
+    let base_url = 'http://localhost/laravel_api/public/api/';
+    isLogged();
+
+    function login()
+    { 
+        $.ajax({
+            url: base_url + 'login', 
+            type: 'POST',
+            dataType: 'JSON',
+            headers: {
+                "Content-Type": "application/json",
+                "accept": "application/json",
+                "Authorization": "Bearer",           
+            },    
+            data: JSON.stringify( { "email": "sara@mail.com", "password": "123456"} ), 
+            contentType: false,
+            processData: false,
+            cache: false,
+            async: true,  
+            beforeSend: function() { console.log('sending credentials...'); },      
+            success: function(response) 
+            { 
+                if(response.status) 
+                { 
+                    alert('You have logged succesfully...');
+                    setToken(response.token);
+                }
+                else { alert('Invalid credentials...'); }
+                console.log(response);
+             } 
+        });  
+
+    }
+
+
+    function empleados()
+    { 
+        $.ajax({
+            url: base_url + 'empleados', 
+            type: 'GET',
+            dataType: 'JSON',
+            headers: {
+                "Content-Type": "application/json",
+                "accept": "application/json",  
+                "Authorization": "Bearer " + getToken()       
+            },    
+            contentType: false,
+            processData: false,
+            cache: false,
+            async: true,  
+            beforeSend: function() { console.log('getting employees..'); },      
+            success: function(response) 
+            { 
+                if(response.status) 
+                { 
+                    let employees_list = '';
+                    for(key in response.empleados)
+                    { 
+                        let employees_row = response.empleados[key];
+                        console.log(employees_row);
+
+                        employees_list += '<tr>';
+                            employees_list += '<td>' + employees_row.nombres + '</td>';
+                            employees_list += '<td>' + employees_row.apellidos + '</td>';
+                            employees_list += '<td>' + employees_row.genero + '</td>';
+                            employees_list += '<td>' + employees_row.dni + '</td>';
+                        employees_list += '</tr>';
+                    } 
+
+                    $('#empleados').html(employees_list);
+                }
+                else { alert('Anauthorized...'); }
+                console.log(response);
+             } 
+        });  
+
+    }
+
+
+    function logout()
+    { 
+        $.ajax({
+            url: base_url + 'logout', 
+            type: 'GET',
+            dataType: 'JSON',
+            headers: {
+                "Content-Type": "application/json",
+                "accept": "application/json",  
+                "Authorization": "Bearer " + getToken()       
+            },    
+            contentType: false,
+            processData: false,
+            cache: false,
+            async: true,  
+            beforeSend: function() {  },      
+            success: function(response) { } 
+        });  
+
+        localStorage.setItem('api_token', '');
+        isLogged();
+    }
+
+
+    function setToken(laravel_token)
+    {
+        let token = laravel_token.split('|');
+        localStorage.setItem('api_token', token[1]);
+        isLogged();
+    }
+
+
+    function getToken() { return localStorage.getItem('api_token'); }
+
+    function isLogged() 
+    {
+        if(getToken()) 
+        { 
+          $('#is-logged').html('You have logged in successfully.');
+          $('#empleados_div').removeClass('hidden');
+          $('#logout').removeClass('hidden');
+          $('#login').addClass('hidden');
+          return;
+        }
+
+        $('#logout').addClass('hidden');
+        $('#login').removeClass('hidden');        
+        $('#is-logged').html('You have not logged');
+        $('#empleados_div').addClass('hidden');
+    }
+    
+ </script>
+    
+</body>
+</html>
