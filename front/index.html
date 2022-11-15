@@ -10,13 +10,34 @@
 </head>
 <body>
 
+  <div style="width: 30%; margin: auto; padding-top: 30px;">
+ 
+    <form id="login" type="POST" onsubmit="event.preventDefault()" accept-charset="UTF-8">
+
+        <!-- Email input -->
+        <div class="form-outline mb-4">
+          <input type="email" id="email" name="email" class="form-control" />
+          <label class="form-label" for="email">Email address</label>
+        </div>
+      
+        <!-- Password input -->
+        <div class="form-outline mb-4">
+          <input type="password" id="password" name="password" class="form-control" />
+          <label class="form-label" for="password">Password</label>
+        </div>
+
+        <!-- Submit button -->
+        <button type="button" onclick="return login()" class="w-100 btn btn-primary btn-block mb-4">Sign in</button>
+
+    </form>    
+  </div>
+
+
  <div class="container" align="center">
 
-    <div style="margin: 20px 10px">
-      <button id="login" class="btn btn-warning" onclick="login()">Click to Authenticate</button>
+    <div style="margin: 20px 10px">      
       <button id="logout" class="btn btn-danger hidden" onclick="logout()">Click to Logout</button>
     </div>
-
     <div id="is-logged"></div><br>
 
     <div id="empleados_div" class="hidden">
@@ -43,6 +64,7 @@
 
     function login()
     { 
+        // let $form = $('#form_login');
         $.ajax({
             url: base_url + 'login', 
             type: 'POST',
@@ -51,13 +73,13 @@
                 "Content-Type": "application/json",
                 "accept": "application/json",
                 "Authorization": "Bearer",           
-            },    
-            data: JSON.stringify( { "email": "sara@mail.com", "password": "123456"} ), 
+            },               
+            data: JSON.stringify( { "email": $('#email').val(), "password": $('#password').val() } ),  // data: new FormData($form[0]),
             contentType: false,
             processData: false,
             cache: false,
             async: true,  
-            beforeSend: function() { console.log('sending credentials...'); },      
+            beforeSend: function() { console.log('sending credentials...'); },          
             success: function(response) 
             { 
                 if(response.status) 
